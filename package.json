@@ -1,0 +1,40 @@
+{
+  "name": "meta-els",
+  "version": "0.1.0",
+  "description": "Wrapper around the Elsevier API.",
+  "main": "index.js",
+  "bin": {
+    "meta-doi": "bin/cmd.js"
+  },
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "author": {
+    "name": "ezPAARSE Team"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.57.0",
+    "xml2json": "^0.7.1",
+    "nconf": "~0.7.1",
+    "csv": "~0.4.1",
+    "yargs": "^3.7.2"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezpaarse-project/meta-els.git"
+  },
+  "keywords": [
+    "doi",
+    "pii",
+    "elsevier"
+  ],
+  "bugs": {
+    "url": "https://github.com/ezpaarse-project/meta-els/issues"
+  },
+  "homepage": "https://github.com/ezpaarse-project/meta-els#readme"
+}
