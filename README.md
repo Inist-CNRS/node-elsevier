@@ -15,13 +15,13 @@ npm install -g meta-els
 var metaELS = require('meta-els');
 var options = {};
 
-// request for one doi
+// request for one pii
 metaELS.resolve("S1534580715000751", options, function (err, item) {
   if (err) { console.error(err); }
   console.log(item);
 });
 
-// request for an array of dois
+// request for an array of piis
 metaELS.resolve(["S1534580715000751", "S0005273614000935"], options, function (err, list) {
   if (err) { console.error(err); }
   list.forEach(function (item) {
