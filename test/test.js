@@ -42,15 +42,15 @@ describe('Elsevier API', function () {
 
       list.forEach(function (item) {
         item.should.have.property('els-publication-date-year');
-        item.should.have.property('els-DOI');
+        item.should.have.property('els-pii');
 
-        item['els-DOI'].should.be.type('string');
+        item['els-pii'].should.be.type('string');
 
         for (var i = testSet.length - 1; i >= 0; i--) {
-          if (testSet[i].pii.toLowerCase() == item['els-DOI'].toLowerCase()) { break; }
+          if (testSet[i].pii.toLowerCase() == item['els-pii'].toLowerCase()) { break; }
         };
 
-        should.exist(testSet[i], 'the pii ' + item['els-DOI'] + ' that we didn\'t send ');
+        should.exist(testSet[i], 'the pii ' + item['els-pii'] + ' that we didn\'t send ');
         item['els-publication-date-year'].toString().should.equal(testSet[i].year);
       });
 

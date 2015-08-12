@@ -9,7 +9,7 @@ var request = require('request').defaults({
          process.env.HTTPS_PROXY
 });
 var config = require('./lib/config.js');
-var apiKey;
+var apiKey, maxcount;
 
 // load credentials for DOI requests
 if (config.apiKey) {
@@ -18,6 +18,11 @@ if (config.apiKey) {
   console.error("apiKey undefined ! needed for Elsevier API requests");
   console.error("You can only use PII requests");
 }
+if (config.maxcount) {
+  maxcount = config.maxcount;
+}
+
+
 
 exports.resolve = function (pii, options, cb) {
   var r = {};
@@ -34,21 +39,27 @@ exports.resolve = function (pii, options, cb) {
       if (typeof response !== 'object') {
         return cb(new Error('response is not a valid object'));
       }
-      if (!response['full-text-retrieval-response']) {
-        return cb(new Error('response object has no message' + response));
+      if (!response['search-results']) {
+        return cb(new Error('response object has no message' + JSON.stringify(response)));
       }
 
-      if (response['full-text-retrieval-response']) {
-        return cb(null, exports.PIIgetInfo(response, options.extended));
-      }
+    if (response['search-results'] && Array.isArray(response['search-results'].entry)) {
+      // suppress duplicated results on dc:identifier
+      var cache = {};
+      var entries = response['search-results'].entry;
+      entries = entries.filter(function(elem,index,array){
+        return cache[elem['dc:identifier']]?0:cache[elem['dc:identifier']]=1;
+      });
 
-      if (response['message-type'] === 'work-list' && Array.isArray(response.message.items)) {
-        var list = response.message.items.map(function (item) {
-          return exports.APIgetInfo(item, options.extended);
-        });
-        return cb(null, list);
-      }
+      var list = entries.map(function (item) {
+        return exports.APIgetInfo(item, options.extended);
+      });
+      return cb(null, list);
+    }
 
+      if (response['search-results']) {
+        return cb(null, exports.APIgetInfo(response, options.extended));
+      }
       return cb(null, {});
     });
   } else {
@@ -198,12 +209,12 @@ exports.APIquery = function (piis, callback) {
 
   var url = 'http://api.elsevier.com/content/search/scidir-object?';
   url += 'suppressNavLinks=true&';
-  url += '&apiKey=9fc929298c82d87d94c06a52a90b3f67';
+  url += '&apiKey=' + apiKey;
   url += '&httpAccept=application/json';
   url += '&field=url,identifier,description,prism:doi,prism:aggregationType,prism:publicationName,prism:coverDate,prism:pii,eid';
 
   if (Array.isArray(piis)) {
-    url += '&count=' + 50 + '&query=pii(' + piis.join(')+OR+pii(') + ')';
+    url += '&count=' + maxcount + '&query=pii(' + piis.join(')+OR+pii(') + ')';
   } else {
     callback(null , null);
   }
@@ -261,4 +272,33 @@ exports.APIgetPublicationDateYear = function(doc) {
     console.error(doc);
   }
   return publication_date_year;
+};
+
+exports.APIgetInfo = function(doc, extended) {
+  var info = {
+    'els-DOI': '',
+    'els-pii': '',
+    'els-publication-date': '',
+    'els-publication-date-year': ''
+  };
+
+  if (typeof doc !== 'object' || doc === null) { return info; }
+
+  if (typeof doc['prism:coverDate'] === 'object' 
+    && typeof doc['prism:coverDate'][0] === 'object' 
+    ) {
+    info['els-publication-date'] = doc['prism:coverDate'][0]['$'];
+    info['els-publication-date-year'] = info['els-publication-date'].substring(0, 4);
+  }
+  if (doc['dc:identifier']) {
+    info['els-pii'] = doc['dc:identifier'].replace('PII:','').replace(/[-\(\)]/g,'');
+  }
+  if (doc['eid']) {
+    info['els-eid'] = doc['eid'];
+  }
+  if (doc['prism:doi']) {
+    info['els-DOI'] = doc['prism:doi'];
+  }
+
+  return info;
 };

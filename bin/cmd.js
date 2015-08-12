@@ -91,9 +91,9 @@ function resolve(callback) {
       var item;
 
       for (var i = list.length - 1; i >= 0; i--) {
-        if (typeof list[i]['pii-DOI'] !== 'string') { continue; }
+        if (typeof list[i]['els-pii'] !== 'string') { continue; }
 
-        if (record[piikey].toLowerCase() == list[i]['pii-DOI'].toLowerCase()) {
+        if (record[piikey].toLowerCase() == list[i]['els-pii'].toLowerCase()) {
           item = list[i];
           break;
         }

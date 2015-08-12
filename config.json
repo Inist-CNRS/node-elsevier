@@ -1,4 +1,5 @@
 {
-  "pid": "user:passwd",
+  "apiKey": "myAPIKeyRequestedOnElsevierSite",
+  "maxcount": 200,
   "csv-separator": ";"
 }
