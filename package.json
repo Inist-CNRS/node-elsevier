@@ -9,9 +9,7 @@
   "scripts": {
     "test": "mocha test.js"
   },
-  "author": {
-    "name": "ezPAARSE Team"
-  },
+  "author": "ezPAARSE Team",
   "license": "MIT",
   "dependencies": {
     "request": "^2.57.0",
@@ -36,5 +34,8 @@
   "bugs": {
     "url": "https://github.com/ezpaarse-project/meta-els/issues"
   },
-  "homepage": "https://github.com/ezpaarse-project/meta-els#readme"
+  "homepage": "https://github.com/ezpaarse-project/meta-els#readme",
+  "directories": {
+    "test": "test"
+  }
 }
