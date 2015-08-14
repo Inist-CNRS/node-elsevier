@@ -28,8 +28,10 @@ exports.resolve = function (options, cb) {
   var r = {};
   var params = {};
 
-  if (apiKey) {
+  if (!options.apiKey && apiKey) {
     params.apiKey = apiKey;
+  } else {
+    params.apiKey = options.apiKey;    
   }
 
   if (typeof options.piis === 'object') {
