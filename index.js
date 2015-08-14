@@ -22,15 +22,18 @@ if (config.maxcount) {
   maxcount = config.maxcount;
 }
 
+exports.apiKey = apiKey;
 
-
-exports.resolve = function (pii, options, cb) {
+exports.resolve = function (options, cb) {
   var r = {};
   var params = {};
 
-  if (Array.isArray(pii)) {
-    params.piis = pii;
+  if (apiKey) {
     params.apiKey = apiKey;
+  }
+
+  if (typeof options.piis === 'object') {
+    params.piis = options.piis;
     exports.APIquery(params, function (err, response) {
       if (err) {
         console.error("Error : " + err);
@@ -65,8 +68,8 @@ exports.resolve = function (pii, options, cb) {
       }
       return cb(null, {});
     });
-  } else {
-    exports.PIIquery(pii, function (err, response) {
+  } else if (options.pii){
+    exports.PIIquery(options.pii, function (err, response) {
       if (err) {
         console.error("Error : " + err);
         return cb(err);
@@ -210,12 +213,8 @@ exports.APIquery = function (params, callback) {
 
   // apiKey found in parameters override configuration
   if (! params.apiKey) {
-    if (apiKey) {
-      params.apiKey = apiKey;
-    } else {
-      var error = new Error('Elsevier API needs apiKey ');
-      return callback(error);
-    }
+    var error = new Error('Elsevier API needs apiKey ');
+    return callback(error);
   }
 
   var url = 'http://api.elsevier.com/content/search/scidir-object?';
@@ -229,7 +228,7 @@ exports.APIquery = function (params, callback) {
   } else {
     callback(null , null);
   }
-  //console.error(url);
+
   request.get(url, function (err, res, body) {
     if (err) { return callback(err); }
 

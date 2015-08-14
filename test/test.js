@@ -32,9 +32,10 @@ describe('Elsevier API', function () {
   });
 
   it('should correctly handle pii arrays (@03)', function (done) {
+    this.timeout(5000);
     var piis = testSet.map(function (set) { return set.pii; });
 
-    metaELS.resolve(piis, {}, function (err, list) {
+    metaELS.resolve({'piis': piis}, function (err, list) {
       should.ifError(err);
 
       list.should.be.instanceof(Array, 'the reponse is not an array');
@@ -74,7 +75,7 @@ function PIIcheck(testCase) {
 function APIcheck(testCase) {
   describe('API request ', function () {
     it('should be correctly enriched (@02) for ' + testCase.itemType, function (done) {
-      metaELS.APIquery({'piis': Array(testCase.pii)}, function (err, doc) {
+      metaELS.APIquery({'piis': Array(testCase.pii), 'apiKey': metaELS.apiKey}, function (err, doc) {
         should.ifError(err);
         should.equal(metaELS.APIgetPublicationDateYear(doc), testCase.year);
         done();
