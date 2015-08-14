@@ -26,9 +26,12 @@ if (config.maxcount) {
 
 exports.resolve = function (pii, options, cb) {
   var r = {};
+  var params = {};
 
   if (Array.isArray(pii)) {
-    exports.APIquery(pii, function (err, response) {
+    params.piis = pii;
+    params.apiKey = apiKey;
+    exports.APIquery(params, function (err, response) {
       if (err) {
         console.error("Error : " + err);
         return cb(err);
@@ -87,9 +90,10 @@ exports.resolve = function (pii, options, cb) {
 };
 
 /**
- * Query Elsevier API and get results
+ * Query Elsevier API for single PII and get results
+ * (no credential needed et more informations returned in coredata)
  * @param  {Object}   search   the actual query parameters
- * @param  {Object}   pii : pii to search metadata for
+ * @param  {String}   pii : pii to search metadata for
  * @param  {Function} callback(err, result)
  */
 exports.PIIquery = function (pii, callback) {
@@ -113,10 +117,8 @@ exports.PIIquery = function (pii, callback) {
     }
 
     var info;
-//console.log(body);
 
     try {
-//      info = JSON.parse(parser.toJson(body, {sanitize: false}));
       info = JSON.parse(body);
     } catch(e) {
       return callback(e);
@@ -159,7 +161,7 @@ exports.PIIgetInfo = function(doc, extended) {
   var info = {
     'els-publication-title': '',
     'els-article-title': '',
-    'els-DOI': '',
+    'els-doi': '',
     'els-pii': '',
     'els-type': '',
     'els-ISSN': '',
@@ -178,8 +180,8 @@ exports.PIIgetInfo = function(doc, extended) {
 
     // search standard information
     info['els-publication-title'] = doc['full-text-retrieval-response'].coredata['prism:publicationName'];
-    info['els-article-title'] = doc['full-text-retrieval-response'].coredata['dc:title'];
-    info['els-DOI']               = doc['full-text-retrieval-response'].coredata['prism:doi'];
+    info['els-article-title']     = doc['full-text-retrieval-response'].coredata['dc:title'];
+    info['els-doi']               = doc['full-text-retrieval-response'].coredata['prism:doi'];
     info['els-pii']               = doc['full-text-retrieval-response'].coredata.pii;
     info['els-type']              = doc['full-text-retrieval-response'].coredata['prism:aggregationType'];
     if (doc['full-text-retrieval-response'].coredata['prism:isbn']) {
@@ -195,26 +197,35 @@ exports.PIIgetInfo = function(doc, extended) {
       info['els-publication-date-year'] = doc['full-text-retrieval-response'].coredata['prism:coverDate'].substring(0, 4);
     }
   }
-
   return info;
 };
 
 /**
  * Query Elsevier API and get results
- * @param  {Object}   search   the actual query parameters
- * @param  {Object}   pii : pii to search metadata for
+ * @param  {Object}   param   the actual API parameters
+ * @param  {Array}   param.piis : pii to search metadata for
  * @param  {Function} callback(err, result)
  */
-exports.APIquery = function (piis, callback) {
+exports.APIquery = function (params, callback) {
+
+  // apiKey found in parameters override configuration
+  if (! params.apiKey) {
+    if (apiKey) {
+      params.apiKey = apiKey;
+    } else {
+      var error = new Error('Elsevier API needs apiKey ');
+      return callback(error);
+    }
+  }
 
   var url = 'http://api.elsevier.com/content/search/scidir-object?';
   url += 'suppressNavLinks=true&';
-  url += '&apiKey=' + apiKey;
+  url += '&apiKey=' + params.apiKey;
   url += '&httpAccept=application/json';
   url += '&field=url,identifier,description,prism:doi,prism:aggregationType,prism:publicationName,prism:coverDate,prism:pii,eid';
 
-  if (Array.isArray(piis)) {
-    url += '&count=' + maxcount + '&query=pii(' + piis.join(')+OR+pii(') + ')';
+  if (Array.isArray(params.piis)) {
+    url += '&count=' + maxcount + '&query=pii(' + params.piis.join(')+OR+pii(') + ')';
   } else {
     callback(null , null);
   }
@@ -276,7 +287,7 @@ exports.APIgetPublicationDateYear = function(doc) {
 
 exports.APIgetInfo = function(doc, extended) {
   var info = {
-    'els-DOI': '',
+    'els-doi': '',
     'els-pii': '',
     'els-publication-date': '',
     'els-publication-date-year': ''
@@ -297,7 +308,7 @@ exports.APIgetInfo = function(doc, extended) {
     info['els-eid'] = doc['eid'];
   }
   if (doc['prism:doi']) {
-    info['els-DOI'] = doc['prism:doi'];
+    info['els-doi'] = doc['prism:doi'];
   }
 
   return info;

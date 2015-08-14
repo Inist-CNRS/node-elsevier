@@ -74,7 +74,7 @@ function PIIcheck(testCase) {
 function APIcheck(testCase) {
   describe('API request ', function () {
     it('should be correctly enriched (@02) for ' + testCase.itemType, function (done) {
-      metaELS.APIquery(Array(testCase.pii), function (err, doc) {
+      metaELS.APIquery({'piis': Array(testCase.pii)}, function (err, doc) {
         should.ifError(err);
         should.equal(metaELS.APIgetPublicationDateYear(doc), testCase.year);
         done();
