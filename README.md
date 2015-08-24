@@ -1,4 +1,4 @@
-# meta-doi
+# meta-els
 Return metadata from a Elsevier PII identifier
 
 ## installation
