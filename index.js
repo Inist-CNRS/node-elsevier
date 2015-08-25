@@ -1,7 +1,5 @@
 'use strict';
 
-var cfg     = require('./config.json');
-var parser  = require('xml2json');
 var request = require('request').defaults({
   proxy: process.env.http_proxy ||
          process.env.HTTP_PROXY ||
@@ -31,7 +29,7 @@ exports.resolve = function (options, cb) {
   if (!options.apiKey && apiKey) {
     params.apiKey = apiKey;
   } else {
-    params.apiKey = options.apiKey;    
+    params.apiKey = options.apiKey;
   }
 
   if (typeof options.piis === 'object') {
@@ -107,7 +105,7 @@ exports.PIIquery = function (pii, callback) {
   var error;
 
   url += encodeURIComponent(pii);
- 
+
   request.get({'url': url, 'headers': {'Accept': 'application/json'}}, function (err, res, body) {
 
     if (err) { return callback(err); }
@@ -143,7 +141,7 @@ exports.PIIquery = function (pii, callback) {
 exports.PIIgetPublicationDateYear = function(apiResult) {
   if (typeof apiResult !== 'object' || apiResult === null) { return {}; }
   if (typeof apiResult['full-text-retrieval-response'] === 'object' &&
-    typeof apiResult['full-text-retrieval-response'].coredata === 'object' 
+    typeof apiResult['full-text-retrieval-response'].coredata === 'object'
     ) {
     if (apiResult['full-text-retrieval-response'].coredata['prism:coverDate']) {
       return apiResult['full-text-retrieval-response'].coredata['prism:coverDate'].substring(0, 4);
@@ -155,7 +153,7 @@ exports.PIIgetPublicationDateYear = function(apiResult) {
 exports.PIIgetPublicationTitle = function(apiResult) {
   if (typeof apiResult !== 'object' || apiResult === null) { return {}; }
   if (typeof apiResult['full-text-retrieval-response'] === 'object' &&
-    typeof apiResult['full-text-retrieval-response'].coredata === 'object' 
+    typeof apiResult['full-text-retrieval-response'].coredata === 'object'
     ) {
       return apiResult['full-text-retrieval-response'].coredata['prism:publicationName'];
   }
@@ -177,9 +175,9 @@ exports.PIIgetInfo = function(doc, extended) {
 
   if (typeof doc !== 'object' || doc === null) { return info; }
   if (typeof doc['full-text-retrieval-response'] === 'object' &&
-    typeof doc['full-text-retrieval-response'].coredata === 'object' 
+    typeof doc['full-text-retrieval-response'].coredata === 'object'
     ) {
-    // 
+    //
     // return all meta informations
     info['els-meta'] = doc['full-text-retrieval-response'].coredata;
 
@@ -267,15 +265,15 @@ exports.APIgetPublicationDateYear = function(doc) {
   var publication_date_year = '';
 
   if (typeof doc !== 'object' || doc === null) { return publication_date_year; }
-  if (typeof doc['search-results'] === 'object' 
-    && typeof doc['search-results'].entry === 'object' 
+  if (typeof doc['search-results'] === 'object'
+    && typeof doc['search-results'].entry === 'object'
     && typeof doc['search-results'].entry[0] === 'object') {
     if (doc['search-results'].entry[0].error) {
       // no result
       return publication_date_year;
     }
-    if (typeof doc['search-results'].entry[0]['prism:coverDate'] === 'object' 
-      && typeof doc['search-results'].entry[0]['prism:coverDate'][0] === 'object' 
+    if (typeof doc['search-results'].entry[0]['prism:coverDate'] === 'object'
+      && typeof doc['search-results'].entry[0]['prism:coverDate'][0] === 'object'
       ) {
       var publication_date = doc['search-results'].entry[0]['prism:coverDate'][0]['$'];
       publication_date_year = publication_date.substring(0, 4);
@@ -296,8 +294,8 @@ exports.APIgetInfo = function(doc, extended) {
 
   if (typeof doc !== 'object' || doc === null) { return info; }
 
-  if (typeof doc['prism:coverDate'] === 'object' 
-    && typeof doc['prism:coverDate'][0] === 'object' 
+  if (typeof doc['prism:coverDate'] === 'object'
+    && typeof doc['prism:coverDate'][0] === 'object'
     ) {
     info['els-publication-date'] = doc['prism:coverDate'][0]['$'];
     info['els-publication-date-year'] = info['els-publication-date'].substring(0, 4);
