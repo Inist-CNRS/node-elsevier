@@ -16,7 +16,7 @@ var metaELS = require('meta-els');
 var options = {};
 
 // request for one pii
-metaELS.resolve("S1534580715000751", options, function (err, item) {
+metaELS.resolve({ "pii": "S1534580715000751" }, function (err, item) {
   if (err) { console.error(err); }
   console.log(item);
 });
