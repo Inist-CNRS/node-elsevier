@@ -1,9 +1,9 @@
-# meta-els
+# node-elsevier
 Return metadata from a Elsevier PII identifier
 
 ## installation
 ```shell
-npm install -g meta-els
+npm install -g node-elsevier
 ```
 
 
@@ -12,7 +12,7 @@ npm install -g meta-els
 ### Module usage
 
 ```shell
-var metaELS = require('meta-els');
+var metaELS = require('node-elsevier');
 var options = {};
 
 // request for one pii
@@ -33,7 +33,7 @@ metaELS.resolve(["S1534580715000751", "S0005273614000935"], options, function (e
 ### Command line usage
 Getting help
 ```shell
-meta-els -h
+node-elsevier -h
 Enrich a csv with meta information requested from a pii.
   Usage: bin/cmd.js [-es] [-f file_name | -k pii_key_name | --pii pii_string]
 
