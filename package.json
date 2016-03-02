@@ -1,5 +1,5 @@
 {
-  "name": "meta-els",
+  "name": "node-elsevier",
   "version": "0.3.1",
   "description": "Wrapper around the Elsevier API.",
   "main": "index.js",
