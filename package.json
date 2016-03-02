@@ -4,7 +4,7 @@
   "description": "Wrapper around the Elsevier API.",
   "main": "index.js",
   "bin": {
-    "meta-els": "bin/cmd.js"
+    "node-elsevier": "bin/cmd.js"
   },
   "scripts": {
     "test": "mocha"
