@@ -3,7 +3,7 @@
 
 var path    = require('path');
 var should  = require('should');
-var metaELS = require('../index.js');
+var elsevier = require('../index.js');
 var testSet = [
   {
     "itemType" : "Serial",
@@ -22,7 +22,7 @@ var testSet = [
     "pii": "S0377025710000340",
     "issn": "0377-0257",
     "year": "2010"
-  },
+  }
 ];
 
 describe('Elsevier API', function () {
@@ -35,7 +35,7 @@ describe('Elsevier API', function () {
     this.timeout(5000);
     var piis = testSet.map(function (set) { return set.pii; });
 
-    metaELS.resolve({'piis': piis}, function (err, list) {
+    elsevier.resolve({'piis': piis}, function (err, list) {
       should.ifError(err);
 
       list.should.be.instanceof(Array, 'the reponse is not an array');
@@ -63,9 +63,9 @@ describe('Elsevier API', function () {
 function PIIcheck(testCase) {
   describe('PII request ', function () {
     it('should be correctly enriched (@01) for ' + testCase.itemType, function (done) {
-      metaELS.PIIquery(testCase.pii, function (err, doc) {
+      elsevier.PIIquery(testCase.pii, function (err, doc) {
         should.ifError(err);
-        should.equal(metaELS.PIIgetPublicationDateYear(doc), testCase.year);
+        should.equal(elsevier.PIIgetPublicationDateYear(doc), testCase.year);
         done();
       });
     });
@@ -75,9 +75,9 @@ function PIIcheck(testCase) {
 function APIcheck(testCase) {
   describe('API request ', function () {
     it('should be correctly enriched (@02) for ' + testCase.itemType, function (done) {
-      metaELS.APIquery({'piis': Array(testCase.pii), 'apiKey': metaELS.apiKey}, function (err, doc) {
+      elsevier.APIquery({'piis': Array(testCase.pii), 'apiKey': elsevier.apiKey}, function (err, doc) {
         should.ifError(err);
-        should.equal(metaELS.APIgetPublicationDateYear(doc), testCase.year);
+        should.equal(elsevier.APIgetPublicationDateYear(doc), testCase.year);
         done();
       });
     });

@@ -5,7 +5,7 @@
  * Command used to enrich csv source with meta info from a pii identifi
  *
  */
-var metaELS = require('../index.js');
+var elsevier = require('../index.js');
 var fs      = require('fs');
 var path    = require('path');
 var csv     = require('csv');
@@ -38,7 +38,7 @@ var options  = { extended: argv.extended || false };
 
 if (argv.pii) {
   // request for a single pii
-  return metaELS.resolve(argv.pii, options, function (err, meta) {
+  return elsevier.resolve(argv.pii, options, function (err, meta) {
     if (err) { throw err; }
     console.log(meta);
   });
@@ -52,7 +52,7 @@ var busy       = false;
 var ended      = false;
 var bufferSize = 20;
 
-var piiFields  = Object.keys(metaELS.APIgetInfo(null, true));
+var piiFields  = Object.keys(elsevier.APIgetInfo(null, true));
 var baseFields = [];
 
 function writeLine(record, meta) {
@@ -80,7 +80,7 @@ function resolve(callback) {
   var records = buffer.splice(0, bufferSize);
   var piis    = records.map(function (r) { return r[piikey]; })
 
-  metaELS.resolve(piis, options, function (err, list) {
+  elsevier.resolve(piis, options, function (err, list) {
     if (err) { console.error(err); }
     if (!Array.isArray(list)) {
       console.error(new Error('meta-pii did not return an array'));
