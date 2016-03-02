@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ezpaarse-project/meta-els.git"
+    "url": "git+https://github.com/ezpaarse-project/node-elsevier.git"
   },
   "keywords": [
     "doi",
@@ -31,9 +31,9 @@
     "elsevier"
   ],
   "bugs": {
-    "url": "https://github.com/ezpaarse-project/meta-els/issues"
+    "url": "https://github.com/ezpaarse-project/node-elsevie/issues"
   },
-  "homepage": "https://github.com/ezpaarse-project/meta-els#readme",
+  "homepage": "https://github.com/ezpaarse-project/node-elsevie#readme",
   "directories": {
     "test": "test"
   }
