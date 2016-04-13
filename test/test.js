@@ -4,26 +4,31 @@
 var path    = require('path');
 var should  = require('should');
 var elsevier = require('../index.js');
+var elsevierMissApikeyMessage = "apiKey not found - skipping - " +
+    "(should be set it in ELS_APIKEY env after request at http://dev.elsevier.com/myapikey.html)"
+
 var testSet = [
   {
     "itemType" : "Serial",
     "pii": "S1534580715000751",
-    "issn": "1534-5807",
-    "year": "2015"
+    "prism:doi": "10.1016/j.devcel.2015.01.032",
+    "dc:title": "A CRISPR/Cas9 Vector System for Tissue-Specific Gene Disruption in Zebrafish"
   },
   {
     "itemType" : "Serial",
     "pii": "S0005273614000935",
-    "issn": "0005-2736",
-    "year": "2014"
+    "prism:doi": "10.1016/j.bbamem.2014.02.021",
+    "dc:title": "Sphingolipid symmetry governs membrane lipid raft structure"
   },
   {
     "itemType" : "Serial",
     "pii": "S0377025710000340",
-    "issn": "0377-0257",
-    "year": "2010"
+    "prism:doi": "10.1016/j.jnnfm.2010.02.006",
+    "dc:title": "Nonequilibrium thermodynamics modeling of coupled biochemical cycles in living cells"
   }
 ];
+
+var apiKey = process.env.ELS_APIKEY
 
 describe('Elsevier API', function () {
   testSet.forEach(function(testCase) {
@@ -31,41 +36,40 @@ describe('Elsevier API', function () {
     APIcheck(testCase);
   });
 
-  it('should correctly handle pii arrays (@03)', function (done) {
-    this.timeout(5000);
-    var piis = testSet.map(function (set) { return set.pii; });
+  if (apiKey) {
+    it('should correctly handle pii arrays (@03)', function (done) {
+      this.timeout(0);
+      var piis = testSet.map(function (set) { return set.pii; });
 
-    elsevier.resolve({'piis': piis}, function (err, list) {
-      should.ifError(err);
+      elsevier.resolve({'piis': piis, 'apiKey': apiKey}, function (err, list) {
+        should.ifError(err);
 
-      list.should.be.instanceof(Array, 'the reponse is not an array');
-      list.should.have.lengthOf(piis.length);
+        list.should.be.instanceof(Array, 'the reponse is not an array');
+        list.should.have.lengthOf(piis.length);
 
-      list.forEach(function (item) {
-        item.should.have.property('els-publication-date-year');
-        item.should.have.property('els-pii');
+        list.forEach(function (item) {
+          item.should.have.property('eid');
+          item.should.have.property('dc:identifier');
 
-        item['els-pii'].should.be.type('string');
+          item['dc:identifier'].should.be.type('string');
 
-        for (var i = testSet.length - 1; i >= 0; i--) {
-          if (testSet[i].pii.toLowerCase() == item['els-pii'].toLowerCase()) { break; }
-        };
+        });
 
-        should.exist(testSet[i], 'the pii ' + item['els-pii'] + ' that we didn\'t send ');
-        item['els-publication-date-year'].toString().should.equal(testSet[i].year);
+        done();
       });
-
-      done();
     });
-  });
+  } else {
+    console.error(elsevierMissApikeyMessage);
+  }
 });
 
 function PIIcheck(testCase) {
   describe('PII request ', function () {
-    it('should be correctly enriched (@01) for ' + testCase.itemType, function (done) {
-      elsevier.PIIquery(testCase.pii, function (err, doc) {
+    this.timeout(0);
+    it('should be correctly enriched with title (@01) for ' + testCase.itemType, function (done) {
+      elsevier.PIIquery({'pii': testCase.pii}, function (err, doc) {
         should.ifError(err);
-        should.equal(elsevier.PIIgetPublicationDateYear(doc), testCase.year);
+        should.equal(doc['full-text-retrieval-response']['coredata']['dc:title'].trim(), testCase['dc:title']);
         done();
       });
     });
@@ -74,12 +78,17 @@ function PIIcheck(testCase) {
 
 function APIcheck(testCase) {
   describe('API request ', function () {
-    it('should be correctly enriched (@02) for ' + testCase.itemType, function (done) {
-      elsevier.APIquery({'piis': Array(testCase.pii), 'apiKey': elsevier.apiKey}, function (err, doc) {
-        should.ifError(err);
-        should.equal(elsevier.APIgetPublicationDateYear(doc), testCase.year);
-        done();
+    this.timeout(0);
+    if (apiKey) {
+      it('should be correctly enriched with doi (@02) for ' + testCase.itemType, function (done) {
+        elsevier.query({'piis': Array(testCase.pii), 'apiKey': apiKey}, function (err, doc) {
+          should.ifError(err);
+          should.equal(doc['search-results']['entry'][0]['prism:doi'], testCase['prism:doi']);
+          done();
+        });
       });
-    });
+    } else {
+      console.error(elsevierMissApikeyMessage);
+    }
   });
 }

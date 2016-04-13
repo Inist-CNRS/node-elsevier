@@ -12,7 +12,7 @@ exports.resolve = function (options, cb) {
   var params = {};
 
   if (!options.apiKey) {
-    params.apiKey = process.env.els_apiKey;
+    params.apiKey = process.env.ELS_APIKEY;
   } else {
     params.apiKey = options.apiKey;
   }
@@ -61,12 +61,12 @@ exports.resolve = function (options, cb) {
  * @param  {String}   pii : pii to search metadata for
  * @param  {Function} callback(err, result)
  */
-exports.PIIquery = function (pii, callback) {
+exports.PIIquery = function (options, callback) {
 
   var url = 'http://api.elsevier.com/content/article/PII:';
   var error;
 
-  url += encodeURIComponent(pii);
+  url += encodeURIComponent(options['pii']);
 
   request.get({'url': url, 'headers': {'Accept': 'application/json'}}, function (err, res, body) {
 
